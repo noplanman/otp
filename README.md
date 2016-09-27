@@ -38,6 +38,8 @@ Usage: otp [options] SITE_NAME
     -b, --base32                     Create a random Base32 string
     -p, --no-color                   Output plain code without color
     -o, --copy                       Copy code to clipboard
+    -q, --qrcode                     Create and output QR code
+        --qrcode-out FILE            Save QR code to file
     -h, --help                       Display this screen
 ```
 

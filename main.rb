@@ -6,29 +6,41 @@ require 'bundler/setup'
 require 'optparse'
 require 'rotp'
 require 'colorize'
+
+require 'rqrcode'
+
 # require 'byebug'
 
 # Set default parameters.
 params = {
     :config => '~/.otp.yml',
-    :color  => true
+    :color => true
 }
-OptionParser.new do |opts|
+o = OptionParser.new do |opts|
   opts.banner = 'Usage: otp [options] SITE_NAME'
 
   opts.on('-c', '--config', 'Specify a .otp.yml file (Default: ~/.otp.yml)') { |v| params[:config] = v }
   opts.on('-b', '--base32', 'Create a random Base32 string') { |v| params[:base32] = v }
   opts.on('-p', '--no-color', 'Output plain code without color') { |v| params[:color] = v }
   opts.on('-o', '--copy', 'Copy code to clipboard') { |v| params[:copy] = v }
+  opts.on('-q', '--qrcode', 'Create and output QR code') { |v| params[:qrcode] = v }
+  opts.on('--qrcode-out FILE', 'Save QR code to file') { |v| params[:qrcode_out] = v }
   opts.on('-h', '--help', 'Display this screen') { puts opts; exit; }
-end.parse!
+end
+
+# Handle invalid params nicely.
+begin
+  o.parse! ARGV
+rescue OptionParser::ParseError => e
+  puts e
+  puts o
+  abort
+end
 
 def copy_to_clipboard(input)
-  str          = input.to_s
   copy_command = (/darwin/ =~ RUBY_PLATFORM) != nil ? 'pbcopy' : 'xclip'
-  IO.popen(copy_command, 'w') { |f| f << str }
+  IO.popen(copy_command, 'w') { |f| f << input.to_s }
   puts 'Copied.'.green
-  str
 end
 
 if params[:base32]
@@ -54,15 +66,55 @@ rescue
 end
 
 if ARGV.length == 0
-  puts 'You should give at least one keyword.'.red
+  puts 'You should give at least one site name.'.red
   abort
 end
 
-unless (secret = setting[ARGV[0]])
-  puts "Keyword \"#{ARGV[0]}\" not found in config file #{config_path}.".red
+site = ARGV[0]
+unless (secret = setting[site])
+  puts "Keyword \"#{site}\" not found in config file #{config_path}.".red
   abort
 end
 
+# https://www.johnhawthorn.com/2009/10/qr-codes-on-the-command-line/
+if params[:qrcode] || params[:qrcode_out]
+
+  text = "otpauth://totp/#{site}?secret=#{secret}&issuer=#{site}"
+
+  # Make a QR code of the smallest possible size.
+  qr = nil
+  (1..10).each do |size|
+    qr = RQRCode::QRCode.new(text, :level => 'l', :size => size) rescue next
+    break
+  end
+
+  # Save QR code as PNG image.
+  qr.as_png({:file => params[:qrcode_out], :border_modules => 1}) if params[:qrcode_out]
+
+  # Output the QR code.
+  if params[:qrcode]
+    SPACER = '  '
+    BLACK = "\e[40m"
+    WHITE = "\e[107m"
+    DEFAULT = "\e[49m"
+
+    width = qr.modules.length
+
+    puts WHITE + SPACER * (width + 2) + BLACK
+
+    width.times do |x|
+      print WHITE + SPACER
+      width.times do |y|
+        print (qr.is_dark(x, y) ? BLACK : WHITE) + SPACER
+      end
+      puts WHITE + SPACER + DEFAULT
+    end
+
+    puts WHITE + SPACER * (width + 2) + BLACK
+  end
+end
+
+# Output OTP code.
 res = ROTP::TOTP.new(secret).now
 puts params[:color] ? res.yellow : res
 
