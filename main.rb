@@ -79,6 +79,8 @@ unless (site_secret = site['secret'])
   abort
 end
 
+# Remove any spaces.
+site_secret.delete! ' '
 site_username = site['username'] || ''
 site_issuer = site['issuer'] || ''
 
