@@ -10,15 +10,13 @@ require 'colorize'
 # require 'byebug'
 
 # Set default parameters.
-params = {
-    :config => '~/.otp.yml',
-    :color => true
-}
+params = {config: '~/.otp.yml', color: true}
 o = OptionParser.new do |opts|
   opts.banner = 'Usage: otp [options] [SITE_NAME]'
 
   opts.on('-c', '--config', 'Specify a .otp.yml file (Default: ~/.otp.yml)') { |v| params[:config] = v }
   opts.on('-b', '--base32', 'Create a random Base32 string') { |v| params[:base32] = v }
+  opts.on('-l', '--list', 'Output a list of all available sites') { |v| params[:list] = v }
   opts.on('-p', '--no-color', 'Output plain code without color') { |v| params[:color] = v }
   opts.on('-o', '--copy', 'Copy code to clipboard') { |v| params[:copy] = v }
   opts.on('-q', '--qrcode', 'Create and output QR code') { |v| params[:qrcode] = v }
@@ -50,7 +48,7 @@ end
 
 config_path = File.expand_path(params[:config])
 unless File.exists?(config_path)
-  puts "#{config_path} not found.\nExit now.".red
+  puts "#{config_path} not found.".red
   abort
 end
 
@@ -61,6 +59,11 @@ begin
 rescue
   puts "Incorrect format in config file #{config_path}.".red
   abort
+end
+
+if params[:list]
+  sites.each { |site,| puts site }
+  exit
 end
 
 if ARGV.length == 0
