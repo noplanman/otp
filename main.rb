@@ -7,8 +7,6 @@ require 'optparse'
 require 'rotp'
 require 'colorize'
 
-require 'rqrcode'
-
 # require 'byebug'
 
 # Set default parameters.
@@ -17,7 +15,7 @@ params = {
     :color => true
 }
 o = OptionParser.new do |opts|
-  opts.banner = 'Usage: otp [options] SITE_NAME'
+  opts.banner = 'Usage: otp [options] [SITE_NAME]'
 
   opts.on('-c', '--config', 'Specify a .otp.yml file (Default: ~/.otp.yml)') { |v| params[:config] = v }
   opts.on('-b', '--base32', 'Create a random Base32 string') { |v| params[:base32] = v }
@@ -58,10 +56,10 @@ end
 
 begin
   require 'yaml'
-  setting = YAML.load_file(config_path)['otp']
-  raise unless setting
+  sites = YAML.load_file(config_path)['otp']
+  raise unless sites
 rescue
-  puts "Incorrect config file format. (#{config_path})".red
+  puts "Incorrect format in config file #{config_path}.".red
   abort
 end
 
@@ -70,16 +68,25 @@ if ARGV.length == 0
   abort
 end
 
-site = ARGV[0]
-unless (secret = setting[site])
-  puts "Keyword \"#{site}\" not found in config file #{config_path}.".red
+site_name = ARGV[0]
+unless (site = sites[site_name])
+  puts "Site \"#{site_name}\" not found in config file #{config_path}.".red
   abort
 end
 
+unless (site_secret = site['secret'])
+  puts "Site \"#{site_name}\" has no secret defined.".red
+  abort
+end
+
+site_username = site['username'] || ''
+site_issuer = site['issuer'] || ''
+
 # https://www.johnhawthorn.com/2009/10/qr-codes-on-the-command-line/
 if params[:qrcode] || params[:qrcode_out]
+  require 'rqrcode'
 
-  text = "otpauth://totp/#{site}?secret=#{secret}&issuer=#{site}"
+  text = URI.escape("otpauth://totp/#{site_issuer}:#{site_username}?secret=#{site_secret}&issuer=#{site_issuer}")
 
   # Make a QR code of the smallest possible size.
   qr = nil
@@ -115,7 +122,7 @@ if params[:qrcode] || params[:qrcode_out]
 end
 
 # Output OTP code.
-res = ROTP::TOTP.new(secret).now
+res = ROTP::TOTP.new(site_secret).now
 puts params[:color] ? res.yellow : res
 
 copy_to_clipboard res if params[:copy]

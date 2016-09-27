@@ -14,9 +14,17 @@ Then, create a `.otp.yml` in your home folder (i.e. `vim ~/.otp.yml`) like below
 
 ```yaml
 otp:
-  google: YOUR_GOOGLE_AUTHENTICATOR_TOKEN_HERE
-  github: YOUR_GITHUB_AUTHENTICATOR_TOKEN_HERE
+  google:
+    secret: YOUR_GOOGLE_AUTHENTICATOR_TOKEN_HERE
+    issuer: Google
+    username: YOUR_GOOGLE_USERNAME_OR_EMAIL
+  github:
+    secret: YOUR_GITHUB_AUTHENTICATOR_TOKEN_HERE
+    issuer: GitHub
+    username: YOUR_GITHUB_USERNAME_OR_EMAIL
 ```
+
+Each item consists of **at least** the `secret` and can also have optional `issuer` and `username` values.
 
 **IMPORTANT!! Remember to set the file permissions to prevent other users from getting your secret tokens!**
 
@@ -33,7 +41,7 @@ ln -s <THIS_REPO_DIR>/main.rb /usr/local/bin/otp
 ## Usage
 
 ```
-Usage: otp [options] SITE_NAME
+Usage: otp [options] [SITE_NAME]
     -c, --config                     Specify a .otp.yml file (Default: ~/.otp.yml)
     -b, --base32                     Create a random Base32 string
     -p, --no-color                   Output plain code without color
