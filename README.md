@@ -18,7 +18,7 @@ otp:
   github: YOUR_GITHUB_AUTHENTICATOR_TOKEN_HERE
 ```
 
-**IMPORTANT!! Remember to set the file permissions to prevent other user from getting your secret token!**
+**IMPORTANT!! Remember to set the file permissions to prevent other users from getting your secret tokens!**
 
 ```bash
 chmod 600 ~/.otp.yml
@@ -33,13 +33,13 @@ ln -s <THIS_REPO_DIR>/main.rb /usr/local/bin/otp
 ## Usage
 
 ```
-otp [-bc] SITE_NAME
-
-SITE_NAME     : Secret key identifier specified in .otp.yml . For the example above: google, github.
---base32 (-b) : Create a random Base32 string. No SITE_NAME needed.
---config (-c) : Specify a .otp.yml file. Default is ~/.otp.yml
+Usage: otp [options] SITE_NAME
+    -c, --config                     Specify a .otp.yml file (Default: ~/.otp.yml)
+    -b, --base32                     Create a random Base32 string
+    -p, --no-color                   Output plain code without color
+    -o, --copy                       Copy code to clipboard
+    -h, --help                       Display this screen
 ```
-
 
 ## To-Do List
 
