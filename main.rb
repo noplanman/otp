@@ -5,12 +5,11 @@ require 'bundler/setup'
 
 require 'optparse'
 require 'rotp'
-require 'colorize'
 
 # require 'byebug'
 
 # Set default parameters.
-params = {config: '~/.otp.yml', color: true}
+params = {config: '~/.otp.yml'}
 o = OptionParser.new do |opts|
   opts.banner = 'Usage: otp [options] [SITE_NAME]'
 
@@ -18,7 +17,6 @@ o = OptionParser.new do |opts|
   opts.on('-C', '--copy', 'Copy code to clipboard') { |v| params[:copy] = v }
   opts.on('-b', '--base32', 'Create a random Base32 string') { |v| params[:base32] = v }
   opts.on('-l', '--list', 'Output a list of all available sites') { |v| params[:list] = v }
-  opts.on('-p', '--no-color', 'Output plain code without color') { |v| params[:color] = v }
   opts.on('-q', '--qrcode', 'Create and output QR code') { |v| params[:qrcode] = v }
   opts.on('-Q', '--qrcode-out FILE', 'Save QR code to file') { |v| params[:qrcode_out] = v }
   opts.on('-h', '--help', 'Display this screen') { puts opts; exit; }
@@ -36,19 +34,19 @@ end
 def copy_to_clipboard(input)
   copy_command = (/darwin/ =~ RUBY_PLATFORM) != nil ? 'pbcopy' : 'xclip'
   IO.popen(copy_command, 'w') { |f| f << input.to_s }
-  puts 'Copied.'.green
+  puts 'Copied.'
 end
 
 if params[:base32]
   base32 = ROTP::Base32.random_base32
-  puts params[:color] ? base32.yellow : base32
+  puts base32
   copy_to_clipboard base32 if params[:copy]
   exit
 end
 
 config_path = File.expand_path(params[:config])
 unless File.exists?(config_path)
-  puts "#{config_path} not found.".red
+  puts "#{config_path} not found."
   abort
 end
 
@@ -57,7 +55,7 @@ begin
   sites = YAML.load_file(config_path)['otp']
   raise unless sites
 rescue
-  puts "Incorrect format in config file #{config_path}.".red
+  puts "Incorrect format in config file #{config_path}."
   abort
 end
 
@@ -67,18 +65,18 @@ if params[:list]
 end
 
 if ARGV.length == 0
-  puts 'You should give at least one site name.'.red
+  puts 'You should give at least one site name.'
   abort
 end
 
 site_name = ARGV[0]
 unless (site = sites[site_name])
-  puts "Site \"#{site_name}\" not found in config file #{config_path}.".red
+  puts "Site \"#{site_name}\" not found in config file #{config_path}."
   abort
 end
 
 unless (site_secret = site['secret'])
-  puts "Site \"#{site_name}\" has no secret defined.".red
+  puts "Site \"#{site_name}\" has no secret defined."
   abort
 end
 
@@ -128,8 +126,7 @@ end
 
 # Output OTP code.
 res = ROTP::TOTP.new(site_secret).now
-puts params[:color] ? res.yellow : res
-
+puts res
 copy_to_clipboard res if params[:copy]
 
 exit
