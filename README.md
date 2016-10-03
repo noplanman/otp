@@ -46,7 +46,6 @@ Usage: otp [options] [SITE_NAME]
     -C, --copy                       Copy code to clipboard
     -b, --base32                     Create a random Base32 string
     -l, --list                       Output a list of all available sites
-    -p, --no-color                   Output plain code without color
     -q, --qrcode                     Create and output QR code
     -Q, --qrcode-out FILE            Save QR code to file
     -h, --help                       Display this screen
