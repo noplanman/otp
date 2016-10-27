@@ -13,7 +13,7 @@ params = {config: '~/.otp.yml'}
 o = OptionParser.new do |opts|
   opts.banner = 'Usage: otp [options] [SITE_NAME]'
 
-  opts.on('-c', '--config', 'Specify a .otp.yml file (Default: ~/.otp.yml)') { |v| params[:config] = v }
+  opts.on('-c', '--config FILE', 'Specify a .otp.yml file (Default: ~/.otp.yml)') { |v| params[:config] = v }
   opts.on('-C', '--copy', 'Copy code to clipboard') { |v| params[:copy] = v }
   opts.on('-b', '--base32', 'Create a random Base32 string') { |v| params[:base32] = v }
   opts.on('-l', '--list', 'Output a list of all available sites') { |v| params[:list] = v }
