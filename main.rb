@@ -82,23 +82,27 @@ end
 
 # Remove any spaces.
 site_secret.delete! ' '
-site_username = site['username'] || ''
-site_issuer = site['issuer'] || ''
 
 # https://www.johnhawthorn.com/2009/10/qr-codes-on-the-command-line/
 if params[:qrcode] || params[:qrcode_out]
   require 'rqrcode'
 
-  text = URI.escape("otpauth://totp/#{site_issuer}:#{site_username}?secret=#{site_secret}&issuer=#{site_issuer}")
+  site_issuer = site['issuer'] || site_name
+  site_label = site_issuer
+  if (site_username = site['username'])
+    site_label += ':' + site_username
+  end
+
+  text = URI.escape("otpauth://totp/#{site_label}?secret=#{site_secret}&issuer=#{site_issuer}")
 
   # Make a QR code of the smallest possible size.
   qr = nil
   (1..10).each do |size|
-    qr = RQRCode::QRCode.new(text, :level => 'l', :size => size) rescue next
+    qr = RQRCode::QRCode.new(text, :level => :m, :size => size) rescue next
     break
   end
 
-  # Save QR code as PNG image.
+  # Save QR code as PNG image if needed.
   qr.as_png({:file => params[:qrcode_out], :border_modules => 1}) if params[:qrcode_out]
 
   # Output the QR code.
