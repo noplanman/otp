@@ -46,8 +46,7 @@ end
 
 config_path = File.expand_path(params[:config])
 unless File.exists?(config_path)
-  puts "#{config_path} not found."
-  abort
+  abort "#{config_path} not found."
 end
 
 begin
@@ -55,8 +54,7 @@ begin
   sites = YAML.load_file(config_path)['otp']
   raise unless sites
 rescue
-  puts "Incorrect format in config file #{config_path}."
-  abort
+  abort "Incorrect format in config file #{config_path}."
 end
 
 if params[:list]
@@ -65,19 +63,16 @@ if params[:list]
 end
 
 if ARGV.length == 0
-  puts 'You should give at least one site name.'
-  abort
+  abort 'You should give at least one site name.'
 end
 
 site_name = ARGV[0]
 unless (site = sites[site_name])
-  puts "Site \"#{site_name}\" not found in config file #{config_path}."
-  abort
+  abort "Site \"#{site_name}\" not found in config file #{config_path}."
 end
 
 unless (site_secret = site['secret'])
-  puts "Site \"#{site_name}\" has no secret defined."
-  abort
+  abort "Site \"#{site_name}\" has no secret defined."
 end
 
 # Remove any spaces.
