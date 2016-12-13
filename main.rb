@@ -19,6 +19,7 @@ o = OptionParser.new do |opts|
   opts.on('-l', '--list', 'Output a list of all available sites') { |v| params[:list] = v }
   opts.on('-q', '--qrcode', 'Create and output QR code') { |v| params[:qrcode] = v }
   opts.on('-Q', '--qrcode-out FILE', 'Save QR code to file') { |v| params[:qrcode_out] = v }
+  opts.on('-I', '--qrcode-in FILE', 'Get OTP info from QR code image file (must be .png)') { |v| params[:qrcode_in] = v }
   opts.on('-h', '--help', 'Display this screen') { puts opts; exit; }
 end
 
@@ -41,6 +42,44 @@ if params[:base32]
   base32 = ROTP::Base32.random_base32
   puts base32
   copy_to_clipboard base32 if params[:copy]
+  exit
+end
+
+if params[:qrcode_in]
+  begin
+    require 'qrio'
+
+    qrcode_path = File.expand_path(params[:qrcode_in])
+    otp_uri = URI(Qrio::Qr.load(qrcode_path).qr.text)
+
+    unless 'otpauth' == otp_uri.scheme
+      abort 'This is not an OTP auth QR code.'
+    end
+
+    unless 'totp' == otp_uri.host
+      abort 'Only TOTP supported for now'
+    end
+
+    puts "uri: #{otp_uri}"
+
+    otp_label = otp_uri.path[1..-1]
+    puts "label: #{otp_label}"
+
+    otp_label_parts = otp_label.split(':')
+    if otp_label_parts.length == 2
+      puts "label-issuer: #{otp_label_parts[0]}"
+      puts "label-user: #{otp_label_parts[1]}"
+    end
+
+    # Print all query parameters.
+    URI::decode_www_form(otp_uri.query).each { |k, v| puts "#{k}: #{v}" }
+
+    copy_to_clipboard otp_uri if params[:copy]
+
+  rescue
+    abort 'Failed to read QR code.'
+  end
+
   exit
 end
 
@@ -89,6 +128,7 @@ if params[:qrcode] || params[:qrcode_out]
   end
 
   text = URI.escape("otpauth://totp/#{site_label}?secret=#{site_secret}&issuer=#{site_issuer}")
+  # text = "asdf://totp/Cyon:armando@noplanman.ch?secret=LXIFXQ6HKEHU5ZQX&issuer=Cyon"
 
   # Make a QR code of the smallest possible size.
   qr = nil

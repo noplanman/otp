@@ -42,12 +42,13 @@ ln -s <THIS_REPO_DIR>/main.rb /usr/local/bin/otp
 
 ```
 Usage: otp [options] [SITE_NAME]
-    -c, --config                     Specify a .otp.yml file (Default: ~/.otp.yml)
+    -c, --config FILE                Specify a .otp.yml file (Default: ~/.otp.yml)
     -C, --copy                       Copy code to clipboard
     -b, --base32                     Create a random Base32 string
     -l, --list                       Output a list of all available sites
     -q, --qrcode                     Create and output QR code
     -Q, --qrcode-out FILE            Save QR code to file
+    -I, --qrcode-in FILE             Get OTP info from QR code image file (must be .png)
     -h, --help                       Display this screen
 ```
 
