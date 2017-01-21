@@ -18,13 +18,17 @@ otp:
     secret: YOUR_GOOGLE_AUTHENTICATOR_TOKEN_HERE
     issuer: Google
     username: YOUR_GOOGLE_USERNAME_OR_EMAIL
+    recovery_keys: recovery
   github:
     secret: YOUR_GITHUB_AUTHENTICATOR_TOKEN_HERE
     issuer: GitHub
     username: YOUR_GITHUB_USERNAME_OR_EMAIL
+    recovery_keys:
+      - recovery1
+      - recovery2
 ```
 
-Each item consists of **at least** the `secret` and can also have optional `issuer` and `username` values.
+Each item consists of **at least** the `secret` and can also have optional `issuer`, `username` and `recovery_keys` values.
 
 **IMPORTANT!! Remember to set the file permissions to prevent other users from getting your secret tokens!**
 
@@ -46,6 +50,7 @@ Usage: otp [options] [SITE_NAME]
     -C, --copy                       Copy code to clipboard
     -b, --base32                     Create a random Base32 string
     -l, --list                       Output a list of all available sites
+    -r, --recovery                   Get one of the recovery keys (random)
     -q, --qrcode                     Create and output QR code
     -Q, --qrcode-out FILE            Save QR code to file
     -I, --qrcode-in FILE             Get OTP info from QR code image file (must be .png)

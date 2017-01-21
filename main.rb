@@ -17,6 +17,7 @@ o = OptionParser.new do |opts|
   opts.on('-C', '--copy', 'Copy code to clipboard') { |v| params[:copy] = v }
   opts.on('-b', '--base32', 'Create a random Base32 string') { |v| params[:base32] = v }
   opts.on('-l', '--list', 'Output a list of all available sites') { |v| params[:list] = v }
+  opts.on('-r', '--recovery', 'Get one of the recovery keys (random)') { |v| params[:recovery] = v }
   opts.on('-q', '--qrcode', 'Create and output QR code') { |v| params[:qrcode] = v }
   opts.on('-Q', '--qrcode-out FILE', 'Save QR code to file') { |v| params[:qrcode_out] = v }
   opts.on('-I', '--qrcode-in FILE', 'Get OTP info from QR code image file (must be .png)') { |v| params[:qrcode_in] = v }
@@ -116,6 +117,16 @@ end
 
 # Remove any spaces.
 site_secret.delete! ' '
+
+# Fetch a recovery key if requested.
+if params[:recovery]
+  unless (recovery_keys = site['recovery_keys'])
+    abort "Site \"#{site_name}\" has no recovery keys defined."
+  end
+  puts recovery_keys if recovery_keys.is_a? String
+  puts recovery_keys.sample if recovery_keys.is_a? Array
+  exit
+end
 
 # https://www.johnhawthorn.com/2009/10/qr-codes-on-the-command-line/
 if params[:qrcode] || params[:qrcode_out]
