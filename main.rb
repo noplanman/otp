@@ -123,8 +123,14 @@ if params[:recovery]
   unless (recovery_keys = site['recovery_keys'])
     abort "Site \"#{site_name}\" has no recovery keys defined."
   end
-  puts recovery_keys if recovery_keys.is_a? String
-  puts recovery_keys.sample if recovery_keys.is_a? Array
+
+  recovery_key = ''
+  recovery_key = recovery_keys if recovery_keys.is_a? String
+  recovery_key = recovery_keys.sample if recovery_keys.is_a? Array
+
+  puts recovery_key
+  copy_to_clipboard recovery_key if params[:copy]
+
   exit
 end
 
