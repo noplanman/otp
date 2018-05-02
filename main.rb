@@ -6,10 +6,8 @@ require 'bundler/setup'
 require 'optparse'
 require 'rotp'
 
-# require 'byebug'
-
 # Set default parameters.
-params = {config: '~/.otp.yml'}
+params = { config: '~/.otp.yml' }
 o = OptionParser.new do |opts|
   opts.banner = 'Usage: otp [options] [SITE_NAME]'
 
@@ -34,7 +32,7 @@ rescue OptionParser::ParseError => e
 end
 
 def copy_to_clipboard(input)
-  copy_command = (/darwin/ =~ RUBY_PLATFORM) != nil ? 'pbcopy' : 'xclip'
+  copy_command = (/darwin/ =~ RUBY_PLATFORM).nil? ? 'xclip' : 'pbcopy'
   IO.popen(copy_command, 'w') { |f| f << input.to_s }
   puts 'Copied.'
 end
@@ -53,13 +51,8 @@ if params[:qrcode_in]
     qrcode_path = File.expand_path(params[:qrcode_in])
     otp_uri = URI(Qrio::Qr.load(qrcode_path).qr.text)
 
-    unless 'otpauth' == otp_uri.scheme
-      abort 'This is not an OTP auth QR code.'
-    end
-
-    unless 'totp' == otp_uri.host
-      abort 'Only TOTP supported for now'
-    end
+    abort 'This is not an OTP auth QR code.' unless otp_uri.scheme == 'otpauth'
+    abort 'Only TOTP supported for now' unless otp_uri.host == 'totp'
 
     puts "uri: #{otp_uri}"
 
@@ -73,11 +66,10 @@ if params[:qrcode_in]
     end
 
     # Print all query parameters.
-    URI::decode_www_form(otp_uri.query).each { |k, v| puts "#{k}: #{v}" }
+    URI.decode_www_form(otp_uri.query).each { |k, v| puts "#{k}: #{v}" }
 
     copy_to_clipboard otp_uri if params[:copy]
-
-  rescue
+  rescue StandardError
     abort 'Failed to read QR code.'
   end
 
@@ -85,16 +77,14 @@ if params[:qrcode_in]
 end
 
 config_path = File.expand_path(params[:config])
-unless File.exists?(config_path)
-  abort "#{config_path} not found."
-end
+abort "'#{config_path}' not found." unless File.exist?(config_path)
 
 begin
   require 'yaml'
   sites = YAML.load_file(config_path)['otp']
   raise unless sites
-rescue
-  abort "Incorrect format in config file #{config_path}."
+rescue StandardError
+  abort "Incorrect format in config file '#{config_path}'."
 end
 
 if params[:list]
@@ -102,26 +92,24 @@ if params[:list]
   exit
 end
 
-if ARGV.length == 0
-  abort 'You should give at least one site name.'
-end
+abort 'You should give at least one site name.' if ARGV.empty?
 
 site_name = ARGV[0]
 unless (site = sites[site_name])
-  abort "Site \"#{site_name}\" not found in config file #{config_path}."
+  abort "Site '#{site_name}' not found in config file '#{config_path}'."
 end
 
 unless (site_secret = site['secret'])
-  abort "Site \"#{site_name}\" has no secret defined."
+  abort "Site '#{site_name}' has no secret defined."
 end
 
-# Remove any spaces.
+# Remove any unnecessary spaces from secret.
 site_secret.delete! ' '
 
 # Fetch a recovery key if requested.
 if params[:recovery]
   unless (recovery_keys = site['recovery_keys'])
-    abort "Site \"#{site_name}\" has no recovery keys defined."
+    abort "Site '#{site_name}' has no recovery keys defined."
   end
 
   recovery_key = ''
@@ -144,25 +132,28 @@ if params[:qrcode] || params[:qrcode_out]
     site_label += ':' + site_username
   end
 
-  text = URI.escape("otpauth://totp/#{site_label}?secret=#{site_secret}&issuer=#{site_issuer}")
-  # text = "asdf://totp/Cyon:armando@noplanman.ch?secret=LXIFXQ6HKEHU5ZQX&issuer=Cyon"
+  text = CGI.escape("otpauth://totp/#{site_label}?secret=#{site_secret}&issuer=#{site_issuer}")
 
   # Make a QR code of the smallest possible size.
   qr = nil
   (1..10).each do |size|
-    qr = RQRCode::QRCode.new(text, :level => :m, :size => size) rescue next
+    begin
+      qr = RQRCode::QRCode.new(text, level: :m, size: size)
+    rescue StandardError
+      next
+    end
     break
   end
 
   # Save QR code as PNG image if needed.
-  qr.as_png({:file => params[:qrcode_out], :border_modules => 1}) if params[:qrcode_out]
+  qr.as_png(file: params[:qrcode_out], border_modules: 1) if params[:qrcode_out]
 
   # Output the QR code.
   if params[:qrcode]
-    SPACER = '  '
-    BLACK = "\e[40m"
-    WHITE = "\e[107m"
-    DEFAULT = "\e[49m"
+    SPACER = '  '.freeze
+    BLACK = "\e[40m".freeze
+    WHITE = "\e[107m".freeze
+    DEFAULT = "\e[49m".freeze
 
     width = qr.modules.length
 
