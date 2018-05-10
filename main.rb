@@ -38,8 +38,7 @@ def copy_to_clipboard(input)
 end
 
 if params[:base32]
-  base32 = ROTP::Base32.random_base32
-  puts base32
+  puts base32 = ROTP::Base32.random_base32
   copy_to_clipboard base32 if params[:copy]
   exit
 end
@@ -81,14 +80,16 @@ abort "'#{config_path}' not found." unless File.exist?(config_path)
 
 begin
   require 'yaml'
-  sites = YAML.load_file(config_path)['otp']
+  otp_config = YAML.load_file(config_path)
+
+  sites = otp_config['otp']
   raise unless sites
 rescue StandardError
   abort "Incorrect format in config file '#{config_path}'."
 end
 
 if params[:list]
-  sites.each { |site,| puts site }
+  puts sites.keys
   exit
 end
 
@@ -172,8 +173,7 @@ if params[:qrcode] || params[:qrcode_out]
 end
 
 # Output OTP code.
-res = ROTP::TOTP.new(site_secret).now
-puts res
+puts res = ROTP::TOTP.new(site_secret).now
 copy_to_clipboard res if params[:copy]
 
 exit
