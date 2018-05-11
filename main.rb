@@ -78,10 +78,16 @@ if params[:qrcode_in]
 end
 
 config_path = File.expand_path(params[:config])
-abort "'#{config_path}' not found." unless File.exist?(config_path)
+
+require 'highline/import'
+require 'yaml'
+
+unless File.exist?(config_path)
+  exit unless agree("<%= color(\"'#{config_path}' not found. Create it? \", :yellow) %>", true)
+  File.write(config_path, { 'otp' => {} }.to_yaml, perm: 0o600)
+end
 
 begin
-  require 'yaml'
   otp_config = YAML.load_file(config_path)
 
   sites = otp_config['otp']
@@ -94,8 +100,6 @@ if params[:list]
   puts sites.keys
   exit
 end
-
-require 'highline/import'
 
 if params[:add] || params[:delete]
   site_name = ask('Site name: ', ->(sn) { sn.strip.gsub(/\s/, '_') }) do |s|
