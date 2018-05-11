@@ -15,6 +15,8 @@ o = OptionParser.new do |opts|
   opts.on('-C', '--copy', 'Copy code to clipboard') { |v| params[:copy] = v }
   opts.on('-b', '--base32', 'Create a random Base32 string') { |v| params[:base32] = v }
   opts.on('-l', '--list', 'Output a list of all available sites') { |v| params[:list] = v }
+  opts.on('-a', '--add', 'Add a new site') { |v| params[:add] = v }
+  opts.on('-d', '--delete', 'Delete an existing site') { |v| params[:delete] = v }
   opts.on('-r', '--recovery', 'Get one of the recovery keys (random)') { |v| params[:recovery] = v }
   opts.on('-q', '--qrcode', 'Create and output QR code') { |v| params[:qrcode] = v }
   opts.on('-Q', '--qrcode-out FILE', 'Save QR code to file') { |v| params[:qrcode_out] = v }
@@ -90,6 +92,70 @@ end
 
 if params[:list]
   puts sites.keys
+  exit
+end
+
+require 'highline/import'
+
+if params[:add] || params[:delete]
+  site_name = ask('Site name: ', ->(sn) { sn.strip.gsub(/\s/, '_') }) do |s|
+    s.readline = true
+    s.completion = sites.keys
+    s.validate = /\A[\w\s]+\Z/
+    s.responses[:not_valid] = 'Site name required (A-z, 0-9, _)'
+  end
+
+  if params[:delete]
+    exit unless agree('<%= color("Are you sure? ", :yellow) %>', true)
+
+    begin
+      sites.delete(site_name)
+      File.write(config_path, otp_config.to_yaml)
+      say("<%= color(\"Deleted '#{site_name}'\", [:red, :bold]) %>")
+    rescue StandardError => e
+      say("<%= color('#{e.message}', [:red, :bold]) %>")
+      abort
+    end
+
+    exit
+  end
+
+  if sites.include?(site_name)
+    exit unless agree("<%= color(\"Site '#{site_name}' exists! Overwrite? \", :yellow) %>", true)
+  end
+
+  new_site = {
+    'secret' => ask('Secret *: ') do |s|
+      s.whitespace = :remove
+      s.validate = ->(sv) { !sv.empty? }
+      s.responses[:not_valid] = 'Secret is required'
+    end,
+    'issuer' => ask('Issuer *: ') do |i|
+      i.default = site_name
+      i.whitespace = :strip_and_collapse
+      i.validate = ->(iv) { !iv.empty? }
+      i.responses[:not_valid] = 'Issuer is required'
+    end,
+    'username' => ask('Username: '),
+    'recovery_keys' => ask('Recovery keys (end with blank line):') do |rk|
+      rk.gather = ''
+    end
+  }
+
+  # Some cleanup for empty parameters.
+  new_site.delete('username') if new_site['username'].empty?
+  new_site.delete('recovery_keys') if new_site['recovery_keys'].empty?
+
+  sites[site_name] = new_site
+
+  begin
+    File.write(config_path, otp_config.to_yaml)
+    say("<%= color(\"Added '#{site_name}'\", [:green, :bold]) %>")
+  rescue StandardError => e
+    say("<%= color('#{e.message}', [:red, :bold]) %>")
+    abort
+  end
+
   exit
 end
 

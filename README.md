@@ -28,7 +28,7 @@ otp:
       - recovery2
 ```
 
-Each item consists of **at least** the `secret` and can also have optional `issuer`, `username` and `recovery_keys` values.
+Each item consists of **at least** the `secret` and an `issuer` and can also have optional `username` and `recovery_keys` values.
 
 **IMPORTANT!! Remember to set the file permissions to prevent other users from getting your secret tokens!**
 
@@ -50,6 +50,8 @@ Usage: otp [options] [SITE_NAME]
     -C, --copy                       Copy code to clipboard
     -b, --base32                     Create a random Base32 string
     -l, --list                       Output a list of all available sites
+    -a, --add                        Add a new site
+    -d, --delete                     Delete an existing site
     -r, --recovery                   Get one of the recovery keys (random)
     -q, --qrcode                     Create and output QR code
     -Q, --qrcode-out FILE            Save QR code to file
