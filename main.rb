@@ -96,15 +96,10 @@ rescue StandardError
   abort "Incorrect format in config file '#{config_path}'."
 end
 
-if params[:list]
-  puts sites.keys
-  exit
-end
-
-if params[:add] || params[:delete]
+if params[:add] || (!sites.empty? && params[:delete])
   site_name = ask('Site name *: ', params[:add] ? ->(sn) { sn.strip.gsub(/\s/, '_')} : nil) do |s|
     s.readline = true
-    s.completion = sites.keys
+    s.completion = sites.keys unless sites.empty?
     s.validate = /\A[\w\s]+\Z/
     s.responses[:not_valid] = 'Site name required (A-z, 0-9, _)'
   end
@@ -165,6 +160,16 @@ if params[:add] || params[:delete]
     abort
   end
 
+  exit
+end
+
+if sites.empty?
+  say('No sites defined. Use \'<%= color("otp -a", :bold) %>\' to add a new one.')
+  exit
+end
+
+if params[:list]
+  puts sites.keys
   exit
 end
 
