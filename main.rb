@@ -197,7 +197,7 @@ if params[:recovery]
   recovery_key = recovery_keys if recovery_keys.is_a? String
   recovery_key = recovery_keys.sample if recovery_keys.is_a? Array
 
-  puts recovery_key
+  puts recovery_keys
   copy_to_clipboard recovery_key if params[:copy]
 
   exit
