@@ -134,15 +134,16 @@ if params[:add] || params[:delete]
 
   new_site = {
     'secret' => ask('Secret *: ') do |s|
+      s.case = :up
       s.whitespace = :remove
-      s.validate = ->(sv) { !sv.empty? }
-      s.responses[:not_valid] = 'Secret is required'
+      s.validate = /\A[A-Za-z2-7]+\Z/
+      s.responses[:not_valid] = 'Secret must be a Base32 string (A-Z, 2-7)'
     end,
     'issuer' => ask('Issuer *: ') do |i|
       i.default = site_name
       i.whitespace = :strip_and_collapse
-      i.validate = ->(iv) { !iv.empty? }
-      i.responses[:not_valid] = 'Issuer is required'
+      i.validate = /\A[\w\s]+\Z/
+      i.responses[:not_valid] = 'Issuer name invalid (A-z, 0-9, _)'
     end,
     'username' => ask('Username: '),
     'recovery_keys' => ask('Recovery keys (end with blank line):') do |rk|
