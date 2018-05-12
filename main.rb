@@ -40,7 +40,7 @@ def copy_to_clipboard(input)
 end
 
 if params[:base32]
-  puts base32 = ROTP::Base32.random_base32
+  puts base32 = ROTP::Base32.random_base32.upcase
   copy_to_clipboard base32 if params[:copy]
   exit
 end
