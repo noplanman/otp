@@ -102,7 +102,7 @@ if params[:list]
 end
 
 if params[:add] || params[:delete]
-  site_name = ask('Site name: ', ->(sn) { sn.strip.gsub(/\s/, '_') }) do |s|
+  site_name = ask('Site name *: ', params[:add] ? ->(sn) { sn.strip.gsub(/\s/, '_')} : nil) do |s|
     s.readline = true
     s.completion = sites.keys
     s.validate = /\A[\w\s]+\Z/
@@ -113,9 +113,13 @@ if params[:add] || params[:delete]
     exit unless agree('<%= color("Are you sure? ", :yellow) %>', true)
 
     begin
-      sites.delete(site_name)
+      sites_deleted = []
+      site_name.split(' ').uniq.each do |sn|
+        sites_deleted << sn if sites.delete(sn)
+      end
+
       File.write(config_path, otp_config.to_yaml)
-      say("<%= color(\"Deleted '#{site_name}'\", [:red, :bold]) %>")
+      say("<%= color(\"Deleted '#{sites_deleted.join(', ')}'\", [:red, :bold]) %>")
     rescue StandardError => e
       say("<%= color('#{e.message}', [:red, :bold]) %>")
       abort
