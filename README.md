@@ -1,16 +1,51 @@
 # One-time Password Generator
 
-A simple command line tool to generate TOTP([RFC 6238](https://tools.ietf.org/html/rfc6238), aka [Google Authenticator](https://en.wikipedia.org/wiki/Google_Authenticator)) based on [mdp/rotp](https://github.com/mdp/rotp).
+A simple command line tool to generate TOTP([RFC 6238], aka [Google Authenticator]) based on [mdp/rotp].
 
 ## Prepare
 
-First, we should install dependencies, as always.
+Clone or download this repository to your computer (`<OTP_DIR>` will be the directory you clone/download to).
 
 ```bash
-bundle install --without development
+# Create <OTP_DIR> and change into it:
+$ mkdir <OTP_DIR> && cd <OTP_DIR>
+
+# If you want to clone the repo:
+$ git clone https://github.com/noplanman/otp .
+
+# If you want to download the repo:
+$ curl -sL https://github.com/noplanman/otp/archive/master.tar.gz | tar xf - --strip-components 1
 ```
 
-Then, create a `.otp.yml` in your home folder (i.e. `vim ~/.otp.yml`) like below:
+First, we need to install dependencies, as always:
+
+```bash
+$ bundle install --without development
+```
+
+Then, for simplicity of use, create a symlink of `main.rb`:
+
+```bash
+$ ln -s main.rb /usr/local/bin/otp
+```
+
+Now, either use `otp -a` to create the config file and add a site:
+
+```bash
+$ otp -a
+'/Users/noplanman/.otp.yml' not found. Create it? y
+Site name *: github
+Secret *: YOUR_GITHUB_AUTHENTICATOR_TOKEN_HERE
+Issuer *: |github| GitHub 
+Username: YOUR_GITHUB_USERNAME_OR_EMAIL
+Recovery keys (end with blank line):
+recovery1
+recovery2
+
+Added 'github'
+```
+
+*or* manually create `.otp.yml` in your home folder (i.e. `vim ~/.otp.yml`) like below:
 
 ```yaml
 otp:
@@ -24,22 +59,22 @@ otp:
     issuer: GitHub
     username: YOUR_GITHUB_USERNAME_OR_EMAIL
     recovery_keys:
-      - recovery1
-      - recovery2
+    - recovery1
+    - recovery2
 ```
 
-Each item consists of **at least** the `secret` and an `issuer` and can also have optional `username` and `recovery_keys` values.
+Each site is case sensitive and consists of **at least**:
+- `secret`: The Base32 secret provided by the service you're setting up the OTP for.
+- `issuer`: Name of the service (e.g. `GitHub`).
 
-**IMPORTANT!! Remember to set the file permissions to prevent other users from getting your secret tokens!**
+and can optionally have:
+- `username`: Your username for the service (e.g. `noplanman`).
+- `recovery_keys`: OTP recovery keys provided by the service (can be a single string or array of strings).
+
+**IMPORTANT!! When manually creating the config file, remember to set the file permissions to prevent other users from getting your secret tokens!**
 
 ```bash
-chmod 600 ~/.otp.yml
-```
-
-If you wish, create a symlink of `main.rb`.
-
-```bash
-ln -s <THIS_REPO_DIR>/main.rb /usr/local/bin/otp
+$ chmod 600 ~/.otp.yml
 ```
 
 ## Usage
@@ -61,8 +96,20 @@ Usage: otp [options] [SITE_NAME]
 
 ## To-Do List
 
-- [x] Add support for X11 clipboard using `xclip`.
-- [ ] Add HOTP([RFC 4226](https://tools.ietf.org/html/rfc4226)) support.
-- [ ] Package it to [homebrew](http://brew.sh).
+- [ ] Add HOTP ([RFC 4226]) support.
+- [ ] Package it to [Homebrew].
+- [ ] Encryption with password protection for sites config file.
 
-Issues and pull requests are always welcome.
+## Contributing
+
+[Issues] and [Pull Requests] are always welcome!
+
+
+
+[RFC 4226]: https://tools.ietf.org/html/rfc4226
+[RFC 6238]: https://tools.ietf.org/html/rfc6238
+[Google Authenticator]: https://en.wikipedia.org/wiki/Google_Authenticator
+[mdp/rotp]: https://github.com/mdp/rotp
+[Homebrew]: https://brew.sh
+[Issues]: https://github.com/noplanman/otp/issues
+[Pull Requests]: https://github.com/noplanman/otp/pulls  
