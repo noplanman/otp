@@ -213,7 +213,7 @@ if params[:qrcode] || params[:qrcode_out]
     site_label += ':' + site_username
   end
 
-  text = CGI.escape("otpauth://totp/#{site_label}?secret=#{site_secret}&issuer=#{site_issuer}")
+  text = URI.escape("otpauth://totp/#{site_label}?secret=#{site_secret}&issuer=#{site_issuer}")
 
   # Make a QR code of the smallest possible size.
   qr = nil
