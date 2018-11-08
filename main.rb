@@ -147,7 +147,7 @@ if params[:add] || (!sites.empty? && params[:delete])
 
   new_site['recovery_keys'] = ask('Recovery keys (end with blank line):') do |rk|
     rk.gather = ''
-  end
+  end.uniq
 
   # Some cleanup for empty parameters.
   new_site.delete('username') if new_site['username'].empty?

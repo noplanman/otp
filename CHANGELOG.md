@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog] and this project adheres to [Semantic 
 ### Deprecated
 ### Removed
 ### Fixed
+- Unique list of recovery keys.
 ### Security
 
 ## [1.2.1] - 2018-06-03
