@@ -140,11 +140,14 @@ if params[:add] || (!sites.empty? && params[:delete])
       i.validate = /\A[\w\s]+\Z/
       i.responses[:not_valid] = 'Issuer name invalid (A-z, 0-9, _)'
     end,
-    'username' => ask('Username: '),
-    'recovery_keys' => ask('Recovery keys (end with blank line):') do |rk|
-      rk.gather = ''
-    end
+    'username' => ask('Username: ')
   }
+
+  say("<%= 'OTP code: ' + color(\"#{ROTP::TOTP.new(new_site['secret']).now}\", [:green, :bold]) %>")
+
+  new_site['recovery_keys'] = ask('Recovery keys (end with blank line):') do |rk|
+    rk.gather = ''
+  end
 
   # Some cleanup for empty parameters.
   new_site.delete('username') if new_site['username'].empty?
