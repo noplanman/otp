@@ -6,10 +6,13 @@ require 'bundler/setup'
 require 'optparse'
 require 'rotp'
 
+version = '1.3.0'
+
 # Set default parameters.
 params = { config: '~/.otp.yml' }
 o = OptionParser.new do |opts|
-  opts.banner = 'Usage: otp [options] [SITE_NAME]'
+  opts.banner = "Version: v#{version}\n"
+  opts.banner += 'Usage: otp [options] [SITE_NAME]'
 
   opts.on('-c', '--config FILE', 'Specify a .otp.yml file (Default: ~/.otp.yml)') { |v| params[:config] = v }
   opts.on('-C', '--copy', 'Copy code to clipboard') { |v| params[:copy] = v }
@@ -21,6 +24,7 @@ o = OptionParser.new do |opts|
   opts.on('-q', '--qrcode', 'Create and output QR code') { |v| params[:qrcode] = v }
   opts.on('-Q', '--qrcode-out FILE', 'Save QR code to file') { |v| params[:qrcode_out] = v }
   opts.on('-I', '--qrcode-in FILE', 'Get OTP info from QR code image file (must be .png)') { |v| params[:qrcode_in] = v }
+  opts.on('-V', '--version', 'Display version number') { puts version; exit; }
   opts.on('-h', '--help', 'Display this screen') { puts opts; exit; }
 end
 

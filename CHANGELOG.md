@@ -3,17 +3,23 @@ The format is based on [Keep a Changelog] and this project adheres to [Semantic 
 
 ## [Unreleased]
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [1.3.0] - 2018-11-10
+### Added
 - Changelog!
+- Version number output
 ### Changed
 - Moved to git.feneas.org.
 - Improved examples in README.
 - Output OTP code before asking for recovery codes when adding a site.
 - Allow more flexibility when choosing site name.
-### Deprecated
-### Removed
 ### Fixed
 - Unique list of recovery keys.
-### Security
 
 ## [1.2.1] - 2018-06-03
 ### Fixed
@@ -36,6 +42,7 @@ The format is based on [Keep a Changelog] and this project adheres to [Semantic 
 - Define recovery codes that can be randomly output
 
 [Unreleased]: https://git.feneas.org/noplanman/otp/compare/master...develop
+[1.3.0]: https://git.feneas.org/noplanman/otp/compare/v1.2.1...v1.3.0
 [1.2.1]: https://git.feneas.org/noplanman/otp/compare/v1.2.0...v1.2.1
 [1.2.0]: https://git.feneas.org/noplanman/otp/compare/v1.1.0...v1.2.0
 [1.1.0]: https://git.feneas.org/noplanman/otp/compare/v1.0...v1.1.0
