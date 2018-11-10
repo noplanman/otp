@@ -1,5 +1,13 @@
 # One-time Password Generator
 
+---
+
+🚀 Development has moved to **[git.feneas.org]**.
+
+(The repository on GitHub is only a mirror, so fork on Feneas to contribute. No registration needed, just sign in with your GitHub account.)
+
+---
+
 A simple command line tool to generate TOTP([RFC 6238], aka [Google Authenticator]) based on [mdp/rotp].
 
 ## Prepare
@@ -8,13 +16,13 @@ Clone or download this repository to your computer (`<OTP_DIR>` will be the dire
 
 ```bash
 # Create <OTP_DIR> and change into it:
-$ mkdir <OTP_DIR> && cd <OTP_DIR>
+$ mkdir -p <OTP_DIR> && cd <OTP_DIR>
 
 # If you want to clone the repo:
-$ git clone https://github.com/noplanman/otp .
+$ git clone https://git.feneas.org/noplanman/otp .
 
 # If you want to download the repo:
-$ curl -sL https://github.com/noplanman/otp/archive/master.tar.gz | tar xf - --strip-components 1
+$ curl -sL https://git.feneas.org/noplanman/otp/-/archive/master/otp-master.tar.gz | tar xf - --strip-components 1
 ```
 
 First, we need to install dependencies, as always:
@@ -34,41 +42,47 @@ Now, either use `otp -a` to create the config file and add a site:
 ```bash
 $ otp -a
 '/Users/noplanman/.otp.yml' not found. Create it? y
-Site name *: github
-Secret *: YOUR_GITHUB_AUTHENTICATOR_TOKEN_HERE
-Issuer *: |github| GitHub 
-Username: YOUR_GITHUB_USERNAME_OR_EMAIL
+Site name *: mastodon
+Secret *: YOUR_MASTODON_AUTHENTICATION_TOKEN_HERE
+Issuer *: |mastodon| Mastodon
+Username: YOUR_MASTODON_USERNAME_OR_EMAIL
 Recovery keys (end with blank line):
 recovery1
 recovery2
 
-Added 'github'
+Added 'mastodon'
 ```
 
 *or* manually create `.otp.yml` in your home folder (i.e. `vim ~/.otp.yml`) like below:
 
 ```yaml
 otp:
-  google:
-    secret: YOUR_GOOGLE_AUTHENTICATOR_TOKEN_HERE
-    issuer: Google
-    username: YOUR_GOOGLE_USERNAME_OR_EMAIL
-    recovery_keys: recovery
-  github:
-    secret: YOUR_GITHUB_AUTHENTICATOR_TOKEN_HERE
-    issuer: GitHub
-    username: YOUR_GITHUB_USERNAME_OR_EMAIL
+  gitlab:
+    secret: YOUR_GITLAB_AUTHENTICATION_TOKEN_HERE
+    issuer: GitLab
+    username: YOUR_GITLAB_USERNAME_OR_EMAIL
     recovery_keys:
     - recovery1
     - recovery2
+  mastodon:
+    secret: YOUR_MASTODON_AUTHENTICATION_TOKEN_HERE
+    issuer: Mastodon
+    username: YOUR_MASTODON_USERNAME_OR_EMAIL
+    recovery_keys:
+    - recovery1
+    - recovery2
+  my_app:
+    secret: SOME_OTHER_AUTHENTICATION_TOKEN_HERE
+    issuer: My App
+    recovery_keys: single_recovery_key
 ```
 
 Each site is case sensitive and consists of **at least**:
 - `secret`: The Base32 secret provided by the service you're setting up the OTP for.
-- `issuer`: Name of the service (e.g. `GitHub`).
+- `issuer`: Name of the service (e.g. `Mastodon`).
 
 and can optionally have:
-- `username`: Your username for the service (e.g. `noplanman`).
+- `username`: Your username for the service (e.g. `jahnny`).
 - `recovery_keys`: OTP recovery keys provided by the service (can be a single string or array of strings).
 
 **IMPORTANT!! When manually creating the config file, remember to set the file permissions to prevent other users from getting your secret tokens!**
@@ -99,17 +113,18 @@ Usage: otp [options] [SITE_NAME]
 - [ ] Add HOTP ([RFC 4226]) support.
 - [ ] Package it to [Homebrew].
 - [ ] Encryption with password protection for sites config file.
+- [ ] Import / Export in various formats.
 
 ## Contributing
 
-[Issues] and [Pull Requests] are always welcome!
+[Issues] and [Merge Requests] are always welcome!
 
 
-
+[git.feneas.org]: https://git.feneas.org/noplanman/otp
 [RFC 4226]: https://tools.ietf.org/html/rfc4226
 [RFC 6238]: https://tools.ietf.org/html/rfc6238
 [Google Authenticator]: https://en.wikipedia.org/wiki/Google_Authenticator
 [mdp/rotp]: https://github.com/mdp/rotp
 [Homebrew]: https://brew.sh
-[Issues]: https://github.com/noplanman/otp/issues
-[Pull Requests]: https://github.com/noplanman/otp/pulls  
+[Issues]: https://git.feneas.org/noplanman/otp/issues
+[Merge Requests]: https://git.feneas.org/noplanman/otp/merge_requests  
