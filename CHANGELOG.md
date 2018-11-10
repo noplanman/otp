@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog] and this project adheres to [Semantic 
 - Moved to git.feneas.org.
 - Improved examples in README.
 - Output OTP code before asking for recovery codes when adding a site.
+- Allow more flexibility when choosing site name.
 ### Deprecated
 ### Removed
 ### Fixed

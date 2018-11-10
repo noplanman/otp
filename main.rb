@@ -97,11 +97,11 @@ rescue StandardError
 end
 
 if params[:add] || (!sites.empty? && params[:delete])
-  site_name = ask('Site name *: ', params[:add] ? ->(sn) { sn.strip.gsub(/\s/, '_')} : nil) do |s|
+  site_name = ask('Site name *: ', params[:add] ? ->(sn) { sn.strip.gsub(/\s/, '-')} : nil) do |s|
     s.readline = true
     s.completion = sites.keys unless sites.empty?
-    s.validate = /\A[\w\s]+\Z/
-    s.responses[:not_valid] = 'Site name required (A-z, 0-9, _)'
+    s.validate = /\A[\w\s\-.]+\Z/
+    s.responses[:not_valid] = 'Site name required (A-z 0-9 _ - .)'
   end
 
   if params[:delete]
@@ -137,8 +137,8 @@ if params[:add] || (!sites.empty? && params[:delete])
     'issuer' => ask('Issuer *: ') do |i|
       i.default = site_name
       i.whitespace = :strip_and_collapse
-      i.validate = /\A[\w\s]+\Z/
-      i.responses[:not_valid] = 'Issuer name invalid (A-z, 0-9, _)'
+      i.validate = /\A[\w\s\-.]+\Z/
+      i.responses[:not_valid] = 'Issuer name invalid (A-z 0-9 _ - .)'
     end,
     'username' => ask('Username: ')
   }
