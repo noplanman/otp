@@ -6,7 +6,7 @@ require 'bundler/setup'
 require 'optparse'
 require 'rotp'
 
-version = '1.3.0'
+version = '1.4.0'
 
 # Set default parameters.
 params = { config: '~/.otp.yml' }
@@ -238,24 +238,11 @@ if params[:qrcode] || params[:qrcode_out]
 
   # Output the QR code.
   if params[:qrcode]
-    SPACER = '  '.freeze
-    BLACK = "\e[40m".freeze
-    WHITE = "\e[107m".freeze
-    DEFAULT = "\e[49m".freeze
-
-    width = qr.modules.length
-
-    puts WHITE + SPACER * (width + 2) + BLACK
-
-    width.times do |x|
-      print WHITE + SPACER
-      width.times do |y|
-        print (qr.is_dark(x, y) ? BLACK : WHITE) + SPACER
-      end
-      puts WHITE + SPACER + DEFAULT
-    end
-
-    puts WHITE + SPACER * (width + 2) + BLACK
+    puts qr.as_ansi(
+      light: "\033[107m", dark: "\033[40m",
+      fill_character: '  ',
+      quiet_zone_size: 2
+    )
   end
 end
 
